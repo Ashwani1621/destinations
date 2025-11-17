@@ -1,7 +1,7 @@
 import http from 'node:http'
 import { getDataFromDB } from './database/db.js'
 import { sendJSONResponse } from './utils/sendJSONResponse.js'
-import { filterContinent, filterCountry } from './utils/filterData.js'
+import { filterData } from './utils/filterData.js'
 
 const PORT = 8000
 
@@ -14,12 +14,14 @@ const server = http.createServer(async (req, res) => {
 
   } else if (req.url.startsWith('/api/continent') && req.method === 'GET') {
 
-      const data = filterContinent(req)
+      const path = req.url.split('/').pop()
+      const data = filterData('continent', path)
       sendJSONResponse(res, 200, data)
 
   } else if (req.url.startsWith('/api/country') && req.method === 'GET') {
 
-      const data = filterCountry(req)
+      const path = req.url.split('/').pop()
+      const data = filterData('country', path)
       sendJSONResponse(res, 200, data)
 
   } else {
