@@ -3,25 +3,32 @@ import { getDataFromDB } from './database/db.js'
 import { sendJSONResponse } from './utils/sendJSONResponse.js'
 import { filterData } from './utils/filterData.js'
 
+import { getDataFromQuery } from './utils/getDataFromQuery.js'
+
 const PORT = 8000
 
 const server = http.createServer(async (req, res) => {
   const destinations = await getDataFromDB()
-
-
-  if (req.url === '/api' && req.method === 'GET') {
-      sendJSONResponse(res, 200, destinations)
+  
+  const urlObj = new URL(req.url, `http://${req.headers.host}`) 
+  const paramObj = Object.fromEntries(urlObj.searchParams)
+  
+  if (urlObj.pathname === '/api' && req.method === 'GET') {
+      
+      const filterData = getDataFromQuery(destinations, paramObj)
+      
+      sendJSONResponse(res, 200, filterData)
 
   } else if (req.url.startsWith('/api/continent') && req.method === 'GET') {
 
       const path = req.url.split('/').pop()
-      const data = filterData('continent', path)
+      const data = filterData(destinations,'continent', path)
       sendJSONResponse(res, 200, data)
 
   } else if (req.url.startsWith('/api/country') && req.method === 'GET') {
 
       const path = req.url.split('/').pop()
-      const data = filterData('country', path)
+      const data = filterData(destinations, 'country', path)
       sendJSONResponse(res, 200, data)
 
   } else {
